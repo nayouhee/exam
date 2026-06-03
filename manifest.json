@@ -1,0 +1,22 @@
+{
+  "name": "컴퓨터활용능력 문제은행",
+  "short_name": "컴활 문제은행",
+  "description": "컴퓨터활용능력 필기 문제은행 앱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#534AB7",
+  "theme_color": "#534AB7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

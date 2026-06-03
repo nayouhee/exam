@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#534AB7" />
+  <title>컴퓨터활용능력 문제은행</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F4F3FF;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 헤더 */
+    .header {
+      background: #534AB7;
+      color: #fff;
+      padding: 20px 20px 16px;
+    }
+    .header-sub { font-size: 12px; opacity: 0.75; margin-bottom: 4px; }
+    .header-title { font-size: 20px; font-weight: 700; }
+
+    /* 진행바 */
+    .progress-wrap { padding: 16px 20px 0; }
+    .progress-meta { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 8px; }
+    .progress-bar { height: 6px; background: #EEE; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #534AB7; border-radius: 99px; transition: width 0.4s ease; }
+
+    /* 문제 카드 */
+    .q-wrap { padding: 20px; flex: 1; }
+    .q-card {
+      background: #F8F7FF;
+      border: 1.5px solid #E0DEFF;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .q-num { font-size: 12px; color: #9991E8; font-weight: 600; margin-bottom: 10px; letter-spacing: 0.05em; }
+    .q-text { font-size: 16px; color: #1A1A2E; line-height: 1.65; font-weight: 500; }
+
+    /* 보기 */
+    .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #fff;
+      border: 1.5px solid #E5E5E5;
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      width: 100%;
+    }
+    .option-btn:hover:not(:disabled) { border-color: #534AB7; background: #F4F3FF; }
+    .option-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #F4F3FF; border: 1.5px solid #D0CEFF;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #534AB7;
+      flex-shrink: 0;
+    }
+    .option-text { font-size: 14px; color: #333; line-height: 1.4; }
+
+    .option-btn.correct { border-color: #1D9E75; background: #E1F5EE; }
+    .option-btn.correct .option-num { background: #1D9E75; border-color: #1D9E75; color: #fff; }
+    .option-btn.correct .option-text { color: #085041; font-weight: 500; }
+
+    .option-btn.wrong { border-color: #E24B4A; background: #FCEBEB; }
+    .option-btn.wrong .option-num { background: #E24B4A; border-color: #E24B4A; color: #fff; }
+    .option-btn.wrong .option-text { color: #501313; }
+
+    .option-btn:disabled { cursor: default; }
+
+    /* 해설 */
+    .feedback {
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.ok { background: #E1F5EE; color: #085041; border: 1px solid #9FE1CB; }
+    .feedback.ng { background: #FCEBEB; color: #501313; border: 1px solid #F7C1C1; }
+    .feedback-label { font-weight: 700; margin-bottom: 4px; font-size: 14px; }
+
+    /* 다음 버튼 */
+    .next-btn {
+      width: 100%;
+      padding: 16px;
+      background: #534AB7;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      transition: background 0.15s;
+    }
+    .next-btn:hover { background: #3C3489; }
+    .next-btn.show { display: block; }
+
+    /* 결과 화면 */
+    .result-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .result-screen.show { display: flex; }
+
+    .result-emoji { font-size: 56px; margin-bottom: 16px; }
+    .result-title { font-size: 22px; font-weight: 700; color: #1A1A2E; margin-bottom: 6px; }
+    .result-sub { font-size: 14px; color: #888; margin-bottom: 28px; }
+
+    .score-circle {
+      width: 140px; height: 140px; border-radius: 50%;
+      background: #F4F3FF; border: 4px solid #534AB7;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin-bottom: 28px;
+    }
+    .score-num { font-size: 40px; font-weight: 700; color: #534AB7; line-height: 1; }
+    .score-label { font-size: 13px; color: #9991E8; margin-top: 4px; }
+
+    .stat-row { display: flex; gap: 12px; width: 100%; margin-bottom: 28px; }
+    .stat-box {
+      flex: 1; background: #F8F7FF; border-radius: 12px;
+      padding: 14px 10px; text-align: center;
+    }
+    .stat-num { font-size: 22px; font-weight: 700; color: #534AB7; }
+    .stat-name { font-size: 12px; color: #888; margin-top: 4px; }
+
+    .retry-btn {
+      width: 100%; padding: 16px;
+      background: #534AB7; color: #fff;
+      border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .retry-btn:hover { background: #3C3489; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-sub">📚 필기 문제은행</div>
+    <div class="header-title">컴퓨터활용능력 1급</div>
+  </div>
+
+  <!-- 퀴즈 화면 -->
+  <div id="quizScreen">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="progressText">1 / 5</span>
+        <span id="scoreText">0점</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:20%"></div>
+      </div>
+    </div>
+
+    <div class="q-wrap">
+      <div class="q-card">
+        <div class="q-num" id="qNum">문제 1</div>
+        <div class="q-text" id="qText"></div>
+      </div>
+
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback">
+        <div class="feedback-label" id="feedbackLabel"></div>
+        <div id="feedbackText"></div>
+      </div>
+      <button class="next-btn" id="nextBtn" onclick="nextQ()">다음 문제 →</button>
+    </div>
+  </div>
+
+  <!-- 결과 화면 -->
+  <div class="result-screen" id="resultScreen">
+    <div class="result-emoji" id="resultEmoji">🎉</div>
+    <div class="result-title">퀴즈 완료!</div>
+    <div class="result-sub">최종 결과를 확인하세요</div>
+    <div class="score-circle">
+      <div class="score-num" id="resultScore">0</div>
+      <div class="score-label">/ 100점</div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-num" id="statCorrect">0</div>
+        <div class="stat-name">정답</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statWrong">0</div>
+        <div class="stat-name">오답</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statTime">0초</div>
+        <div class="stat-name">소요시간</div>
+      </div>
+    </div>
+    <button class="retry-btn" onclick="restart()">🔄 다시 풀기</button>
+  </div>
+
+</div>
+
+<script>
+  // ✅ 여기에 문제를 추가/수정하세요!
+  const questions = [
+    {
+      q: "다음 중 엑셀에서 절대 참조를 나타내는 기호는?",
+      opts: ["#", "@", "$", "&"],
+      ans: 2,
+      exp: "절대 참조는 $ 기호를 사용합니다. 예: $A$1은 행과 열 모두 고정됩니다."
+    },
+    {
+      q: "워드에서 문서 전체를 선택하는 단축키는?",
+      opts: ["Ctrl+A", "Ctrl+S", "Ctrl+Z", "Ctrl+P"],
+      ans: 0,
+      exp: "Ctrl+A는 전체 선택, Ctrl+S는 저장, Ctrl+Z는 실행취소, Ctrl+P는 인쇄입니다."
+    },
+    {
+      q: "스프레드시트에서 평균을 구하는 함수는?",
+      opts: ["SUM()", "COUNT()", "AVERAGE()", "MAX()"],
+      ans: 2,
+      exp: "AVERAGE() 함수는 지정된 범위의 평균값을 계산합니다."
+    },
+    {
+      q: "운영체제(OS)가 아닌 것은?",
+      opts: ["Windows 11", "macOS", "Android", "Excel"],
+      ans: 3,
+      exp: "Excel은 스프레드시트 프로그램이며, 운영체제가 아닙니다."
+    },
+    {
+      q: "엑셀에서 오늘 날짜를 자동으로 입력하는 함수는?",
+      opts: ["NOW()", "TODAY()", "DATE()", "TIME()"],
+      ans: 1,
+      exp: "TODAY()는 오늘 날짜만, NOW()는 날짜+시간을 반환합니다."
+    }
+  ];
+
+  const labels = ["①","②","③","④"];
+  let cur = 0, score = 0, correct = 0, wrong = 0, startTime;
+
+  function render() {
+    const q = questions[cur];
+    document.getElementById("qNum").textContent = "문제 " + (cur + 1);
+    document.getElementById("qText").textContent = q.q;
+    document.getElementById("progressText").textContent = (cur + 1) + " / " + questions.length;
+    document.getElementById("progressFill").style.width = ((cur + 1) / questions.length * 100) + "%";
+
+    const opts = document.getElementById("options");
+    opts.innerHTML = "";
+    q.opts.forEach((o, i) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerHTML = `<span class="option-num">${labels[i]}</span><span class="option-text">${o}</span>`;
+      btn.onclick = () => select(i);
+      opts.appendChild(btn);
+    });
+
+    document.getElementById("feedback").className = "feedback";
+    document.getElementById("nextBtn").className = "next-btn";
+  }
+
+  function select(idx) {
+    const q = questions[cur];
+    const allBtns = document.querySelectorAll(".option-btn");
+    allBtns.forEach(b => b.disabled = true);
+
+    const fb = document.getElementById("feedback");
+    const label = document.getElementById("feedbackLabel");
+    const text = document.getElementById("feedbackText");
+
+    if (idx === q.ans) {
+      allBtns[idx].className = "option-btn correct";
+      score += 20; correct++;
+      fb.className = "feedback ok show";
+      label.textContent = "✓ 정답!";
+    } else {
+      allBtns[idx].className = "option-btn wrong";
+      allBtns[q.ans].className = "option-btn correct";
+      wrong++;
+      fb.className = "feedback ng show";
+      label.textContent = "✗ 오답";
+    }
+
+    text.textContent = q.exp;
+    document.getElementById("scoreText").textContent = score + "점";
+    const nextBtn = document.getElementById("nextBtn");
+    nextBtn.className = "next-btn show";
+    nextBtn.textContent = cur < questions.length - 1 ? "다음 문제 →" : "결과 보기";
+  }
+
+  function nextQ() {
+    cur++;
+    if (cur >= questions.length) showResult();
+    else render();
+  }
+
+  function showResult() {
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+    document.getElementById("quizScreen").style.display = "none";
+    document.getElementById("resultScreen").className = "result-screen show";
+    document.getElementById("resultScore").textContent = score;
+    document.getElementById("statCorrect").textContent = correct;
+    document.getElementById("statWrong").textContent = wrong;
+    document.getElementById("statTime").textContent = elapsed + "초";
+    document.getElementById("resultEmoji").textContent = score >= 80 ? "🎉" : score >= 60 ? "😊" : "😅";
+  }
+
+  function restart() {
+    cur = 0; score = 0; correct = 0; wrong = 0;
+    document.getElementById("scoreText").textContent = "0점";
+    document.getElementById("quizScreen").style.display = "block";
+    document.getElementById("resultScreen").className = "result-screen";
+    startTime = Date.now();
+    render();
+  }
+
+  startTime = Date.now();
+  render();
+</script>
+</body>
+</html>
